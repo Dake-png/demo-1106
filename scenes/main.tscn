@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://bmain00001"]
+
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_main")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Root" type="HBoxContainer" parent="HUD"]
+anchor_right = 1.0
+offset_right = 0.0
+offset_left = 16.0
+offset_top = 16.0
+
+[node name="HPBar" type="ProgressBar" parent="HUD/Root"]
+custom_minimum_size = Vector2(200, 20)
+max_value = 100.0
+value = 100.0
+
+[node name="ScoreLabel" type="Label" parent="HUD/Root"]
+custom_minimum_size = Vector2(120, 20)
+text = "金币: 0"

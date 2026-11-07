@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://benemy001"]
+
+[ext_resource type="Script" path="res://scripts/enemy.gd" id="1_enemy"]
+
+[sub_resource type="CircleShape2D" id="cs_enemy_body"]
+radius = 16.0
+
+[sub_resource type="CircleShape2D" id="cs_enemy_hit"]
+radius = 18.0
+
+[node name="Enemy" type="CharacterBody2D" groups=["enemy"]]
+script = ExtResource("1_enemy")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("cs_enemy_body")
+
+[node name="AttackArea" type="Area2D" parent="."]
+collision_layer = 16
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackArea"]
+shape = SubResource("cs_enemy_hit")

@@ -1,0 +1,27 @@
+# Godot 4+
+.godot/
+.import/
+/android/
+/ios/
+/.gradle/
+/.godot/export_templates/
+
+# Godot 自动生成的 UID 和导入配置
+*.uid
+*.import
+
+# 导出预设（含本地路径，不进版本库）
+export_presets.cfg
+
+# 用户侧编辑器配置（可选，看团队是否共享）
+# .editorconfig 通常保留
+# .gitattributes 通常保留
+
+# 操作系统
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp

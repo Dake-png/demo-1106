@@ -28,6 +28,7 @@ var ZOOM_STEP := 0.15
 
 # --- 摄像机缓动 ---
 var CAM_FOLLOW_SPEED := 9.0   # 越大跟得越紧；越小越"拖尾"
+var CAM_FORWARD := Vector2(0, -36)   # 2.5D 前视：镜头略偏上方，露出更多前方地面
 var cam_pos := Vector2.ZERO
 
 # --- 动态属性（可被升级卡修改） ---
@@ -280,15 +281,15 @@ func _ready() -> void:
 	# 摄像机脱离玩家节点独立缓动跟随（top_level 避免被玩家位移直接带动）
 	cam.top_level = true
 	cam.position_smoothing_enabled = false
-	cam.global_position = global_position
-	cam_pos = global_position
+	cam_pos = global_position + CAM_FORWARD
+	cam.global_position = cam_pos
 
 
 # 摄像机缓动：指数平滑跟随 + 按当前缩放对齐像素网格，保证画面不糊
 func _process(delta: float) -> void:
 	if not cam:
 		return
-	cam_pos = cam_pos.lerp(global_position, 1.0 - exp(-CAM_FOLLOW_SPEED * delta))
+	cam_pos = cam_pos.lerp(global_position + CAM_FORWARD, 1.0 - exp(-CAM_FOLLOW_SPEED * delta))
 	var z: float = maxf(cam.zoom.x, 0.001)
 	var step := 1.0 / z          # 屏幕 1 像素对应的世界距离
 	cam.global_position = Vector2(
@@ -296,10 +297,10 @@ func _process(delta: float) -> void:
 		round(cam_pos.y / step) * step
 	)
 
-	# 震屏：随机偏移，随时间衰减
+	# 震屏：2.5D 下纵向位移观感更强，纵向幅度更大
 	if _shake > 0.05:
 		_shake = maxf(0.0, _shake - delta * 40.0)
-		cam.offset = Vector2(randf_range(-_shake, _shake), randf_range(-_shake, _shake))
+		cam.offset = Vector2(randf_range(-_shake * 0.35, _shake * 0.35), randf_range(-_shake, _shake))
 	else:
 		_shake = 0.0
 		cam.offset = Vector2.ZERO

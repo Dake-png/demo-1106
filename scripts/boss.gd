@@ -247,30 +247,44 @@ func _process(delta: float) -> void:
 
 
 func _draw() -> void:
-	if shield > 0.0 and max_shield > 0.0:
-		draw_arc(Vector2.ZERO, radius + 7.0, 0.0, TAU * (shield / max_shield), 32,
-			Color(0.3, 0.7, 1.0), 4.0)
+	# 贴地阴影：Boss 更大更淡
+	WorldView.draw_shadow(self, radius * 1.15, 0.2)
 
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE * (radius / 40.0))
+	# 护盾环：贴地椭圆（2.5D 下铺在地面，不悬空）
+	if shield > 0.0 and max_shield > 0.0:
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, WorldView.SHADOW_FLAT))
+		draw_arc(Vector2.ZERO, radius + 9.0, 0.0, TAU * (shield / max_shield), 40,
+			Color(0.3, 0.7, 1.0), 5.0)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+	# 冰冻：地面霜圈
+	if effects and effects.is_frozen():
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, WorldView.SHADOW_FLAT))
+		draw_circle(Vector2.ZERO, radius + 4.0, Color(0.62, 0.88, 1.0, 0.28))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+	# 本体抬升：底部厚度 + 外观（按 radius / 40 缩放）
+	WorldView.body_begin_scaled(self, WorldView.LIFT_TALL, radius / 40.0)
+	draw_circle(Vector2(0.0, 8.0), 40.0, Color(0.0, 0.0, 0.0, 0.22))
 	if visual == "minotaur":
 		_draw_minotaur()
 	else:
 		_draw_demon()
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 	# 受击闪白：短促白色覆盖，强化打击反馈
 	if _hit_flash > 0.0:
-		draw_circle(Vector2.ZERO, radius, Color(1.0, 1.0, 1.0, minf(0.7, _hit_flash * 8.0)))
+		draw_circle(Vector2.ZERO, 40.0, Color(1.0, 1.0, 1.0, minf(0.7, _hit_flash * 8.0)))
 
 	# 冰冻 debuff 满层：冰层覆盖 + 冰冻图标
 	if effects and effects.is_frozen():
-		draw_circle(Vector2.ZERO, radius + 2.0, Color(0.6, 0.9, 1.0, 0.45))
-		draw_arc(Vector2.ZERO, radius + 7.0, 0.0, TAU, 40, Color(0.85, 0.97, 1.0, 0.9), 3.0)
+		draw_circle(Vector2.ZERO, 42.0, Color(0.6, 0.9, 1.0, 0.45))
+		draw_arc(Vector2.ZERO, 47.0, 0.0, TAU, 40, Color(0.85, 0.97, 1.0, 0.9), 3.0)
 		for i in range(6):
 			var a := TAU * float(i) / 6.0
-			var p1 := Vector2(cos(a), sin(a)) * radius * 0.15
-			var p2 := Vector2(cos(a), sin(a)) * radius * 0.6
+			var p1 := Vector2(cos(a), sin(a)) * 6.0
+			var p2 := Vector2(cos(a), sin(a)) * 24.0
 			draw_line(p1, p2, Color(0.9, 0.98, 1.0, 0.95), 3.0)
+	WorldView.body_end(self)
 
 
 func _draw_demon() -> void:
@@ -283,6 +297,8 @@ func _draw_demon() -> void:
 	# 圆滚滚的身体
 	draw_circle(Vector2.ZERO, 40.0, Color(0.86, 0.26, 0.22))
 	draw_arc(Vector2.ZERO, 40.0, 0.0, TAU, 32, Color(0.45, 0.08, 0.1), 3.0)
+	# 顶部亮边：轻微渐变，让球体看起来有受光面
+	draw_arc(Vector2(0.0, 2.0), 40.0, PI + 0.55, TAU - 0.55, 24, Color(0.96, 0.46, 0.42), 4.0)
 
 	# 大眼睛
 	draw_circle(Vector2(-14.0, -6.0), 11.0, Color.WHITE)
@@ -318,6 +334,7 @@ func _draw_minotaur() -> void:
 	# 身体
 	draw_circle(Vector2.ZERO, 40.0, body)
 	draw_arc(Vector2.ZERO, 40.0, 0.0, TAU, 32, outline, 3.0)
+	draw_arc(Vector2(0.0, 2.0), 40.0, PI + 0.55, TAU - 0.55, 24, Color(0.56, 0.38, 0.24), 4.0)
 
 	# 口鼻
 	draw_circle(Vector2(0.0, 18.0), 19.0, Color(0.58, 0.4, 0.26))

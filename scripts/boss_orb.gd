@@ -23,9 +23,13 @@ func _physics_process(delta: float) -> void:
 
 func _draw() -> void:
 	var pulse := 8.0 + sin(_t * 10.0) * 1.5
+	# 悬浮感：淡阴影贴地 + 本体抬高
+	WorldView.draw_shadow(self, pulse * 0.5, 0.16)
+	WorldView.body_begin(self, WorldView.LIFT_BULLET)
 	draw_circle(Vector2.ZERO, pulse, Color(0.65, 0.2, 0.9, 0.9))
 	draw_circle(Vector2.ZERO, 3.5, Color(1.0, 0.9, 0.3))
 	draw_arc(Vector2.ZERO, pulse, 0.0, TAU, 16, Color(0.95, 0.85, 1.0), 1.5)
+	WorldView.body_end(self)
 
 
 func _on_body_entered(body: Node) -> void:

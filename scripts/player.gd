@@ -273,7 +273,7 @@ func _ready() -> void:
 	emoji_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	emoji_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	emoji_label.size = Vector2(32, 32)
-	emoji_label.position = Vector2(-16, -18)
+	emoji_label.position = Vector2(-16, -28)   # 2.5D：表情本体抬升，站在脚下底座上
 	emoji_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(emoji_label)
 
@@ -427,7 +427,15 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _draw() -> void:
-	# 身体由 emoji Label 显示，这里只画瞄准指示、护盾与磁吸光环
+	# 身体由 emoji Label 显示（已抬升），这里画贴地阴影、脚下底座与地面光环
+	WorldView.draw_shadow(self, 20.0, 0.28)
+
+	# 脚下底座：压扁的深色圆盘，表情站在上面才有落地感
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, 0.5))
+	draw_circle(Vector2(0.0, 3.0), 15.0, Color(0.30, 0.36, 0.46, 0.9))
+	draw_arc(Vector2(0.0, 3.0), 15.0, 0.0, TAU, 24, Color(0.58, 0.68, 0.82, 0.95), 2.0)
+
+	# 护盾 / 磁吸 / 无敌：贴地扁环（2.5D 下光环铺在地面上）
 	if shield > 0.0:
 		draw_arc(Vector2.ZERO, 19.0, 0.0, TAU * (shield / shield_max()), 24, Color(0.35, 0.75, 1.0), 2.5)
 	if magnet_time > 0.0:
@@ -435,9 +443,12 @@ func _draw() -> void:
 		draw_arc(Vector2.ZERO, pulse, 0.0, TAU, 32, Color(0.75, 0.35, 1.0, 0.85), 2.0)
 	if invuln_timer > 0.0:
 		draw_arc(Vector2.ZERO, 22.0, 0.0, TAU, 32, Color.YELLOW, 2.0)
+
+	# 瞄准指示：贴地扇形，方向仍跟随鼠标
 	var aim_dir := (get_global_mouse_position() - global_position).normalized()
 	var tri := PackedVector2Array([aim_dir * 20.0, aim_dir.rotated(0.45) * 10.0, aim_dir.rotated(-0.45) * 10.0])
 	draw_colored_polygon(tri, Color(0.1, 0.1, 0.1))
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 # --- 经验相关 ---

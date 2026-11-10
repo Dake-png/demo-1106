@@ -56,6 +56,10 @@ func _draw() -> void:
 	elif crit_stacks == 1:
 		c = Color(1.0, 0.45, 0.1)
 	var r := bullet_size + float(mini(crit_stacks, 3)) * 0.8
+
+	# 悬浮感：脚下一个很小的淡阴影 + 本体抬高
+	WorldView.draw_shadow(self, r * 0.55, 0.18)
+	WorldView.body_begin(self, WorldView.LIFT_BULLET)
 	if bullet_shape == "hex":
 		var pts := PackedVector2Array()
 		for i in range(6):
@@ -66,3 +70,4 @@ func _draw() -> void:
 	else:
 		draw_circle(Vector2.ZERO, r, c)
 		draw_arc(Vector2.ZERO, r, 0.0, TAU, 16, Color.YELLOW, 1.5)
+	WorldView.body_end(self)

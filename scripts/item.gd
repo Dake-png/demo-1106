@@ -23,7 +23,7 @@ func _ready() -> void:
 	_icon_label.text = ITEM_DATA.icon_of(item_id)
 	_icon_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_icon_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_icon_label.position = Vector2(-14, -18)
+	_icon_label.position = Vector2(-14, -26)   # 2.5D：图标随本体抬升
 	_icon_label.size = Vector2(28, 32)
 	_icon_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_icon_label)
@@ -46,8 +46,11 @@ func _process(delta: float) -> void:
 func _draw() -> void:
 	var c: Color = ITEM_DATA.color_of(item_id)
 	c.a = 0.95
+	WorldView.draw_shadow(self, 7.0, 0.22)
+	WorldView.body_begin(self, WorldView.LIFT_DROP + 1.0)
 	draw_circle(Vector2.ZERO, 14.0, c)
 	draw_arc(Vector2.ZERO, 14.0, 0.0, TAU, 24, Color.WHITE, 2.0)
+	WorldView.body_end(self)
 
 
 func _on_body_entered(body: Node) -> void:

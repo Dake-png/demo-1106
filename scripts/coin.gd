@@ -25,9 +25,13 @@ func _process(delta: float) -> void:
 
 
 func _draw() -> void:
+	# 小物件立体化：淡阴影 + 抬升 + 压扁的币面（旋转时像倾倒的硬币）
+	WorldView.draw_shadow(self, 4.5, 0.2)
+	draw_set_transform(Vector2(0.0, -WorldView.LIFT_DROP), 0.0, Vector2(1.0, 0.72))
 	draw_circle(Vector2.ZERO, 8.0, Color.GOLD)
 	draw_arc(Vector2.ZERO, 8.0, 0.0, TAU, 20, Color(0.8, 0.6, 0.0), 1.5)
 	draw_circle(Vector2.ZERO, 3.0, Color.WHITE)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 func _on_body_entered(body: Node) -> void:

@@ -28,9 +28,12 @@ func _process(delta: float) -> void:
 
 
 func _draw() -> void:
+	WorldView.draw_shadow(self, 4.5, 0.2)
+	WorldView.body_begin(self, WorldView.LIFT_DROP)
 	draw_circle(Vector2.ZERO, 8.0, Color(0.15, 0.75, 1.0))
 	draw_circle(Vector2.ZERO, 3.5, Color.WHITE)
 	draw_arc(Vector2.ZERO, 8.0, 0.0, TAU, 16, Color(0.05, 0.4, 0.8), 1.5)
+	WorldView.body_end(self)
 
 
 func _on_body_entered(body: Node) -> void:

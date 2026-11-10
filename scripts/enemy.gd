@@ -263,8 +263,17 @@ func _draw() -> void:
 	for i in range(sides):
 		var a := i * TAU / sides - PI / 2.0
 		poly.append(Vector2(cos(a), sin(a)) * radius)
-	draw_colored_polygon(poly, body_color)
-	draw_polyline(poly + PackedVector2Array([poly[0]]), Color.BLACK, 2.0)
+
+	# 贴地椭圆阴影 + 冰冻时的地面霜圈（画在脚点，不参与抬升）
+	WorldView.draw_shadow(self, radius * 0.95, 0.26)
+	if effects and effects.is_frozen():
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, WorldView.SHADOW_FLAT))
+		draw_circle(Vector2.ZERO, radius + 5.0, Color(0.62, 0.88, 1.0, 0.32))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+	# 本体抬升：侧壁厚度 + 顶面
+	WorldView.body_begin(self, WorldView.LIFT_DEFAULT)
+	WorldView.draw_prism(self, poly, body_color, 7.0, Color.BLACK, 2.0)
 
 	# 受击闪白：短促白色覆盖，强化打击反馈
 	if _hit_flash > 0.0:
@@ -298,6 +307,7 @@ func _draw() -> void:
 	draw_circle(Vector2( eye_dx, eye_y), 3.0, Color.WHITE)
 	draw_circle(Vector2(-eye_dx, eye_y), 1.5, Color.BLACK)
 	draw_circle(Vector2( eye_dx, eye_y), 1.5, Color.BLACK)
+	WorldView.body_end(self)
 
 
 func take_damage(amount: int, crit := false) -> void:

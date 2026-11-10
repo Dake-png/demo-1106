@@ -50,6 +50,7 @@ var shield_delay := 0.0
 var player: Node2D
 var effects: Node
 var movement_locked := false
+var fx_host: Node = null      # 特效层（Fx）：弹幕等挂到实体之上，由 spawner 注入
 
 var _dead := false
 var _hit_flash := 0.0          # 受击闪白剩余时间

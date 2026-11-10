@@ -7,15 +7,15 @@ const BulletScene := preload("res://scenes/bullet.tscn")
 const WEAPONS := preload("res://scripts/weapon_data.gd")
 const EFFECTS := preload("res://scripts/effect_data.gd")
 
-var host: Node       # 主场景：子弹 / 特效仍挂在它下面，保持渲染层级不变
+var fx: Node        # 特效层：子弹 / 范围圈始终压在实体之上（由 main 传入 Fx 层）
 var player
 var dmg_numbers: Node
 var sfx: Callable
 var _last_hit_stop := 0   # 上次顿帧时间（毫秒），用于冷却
 
 
-func setup(host_node: Node, p, numbers: Node, sfx_cb: Callable) -> void:
-	host = host_node
+func setup(fx_host: Node, p, numbers: Node, sfx_cb: Callable) -> void:
+	fx = fx_host
 	player = p
 	dmg_numbers = numbers
 	sfx = sfx_cb
@@ -36,7 +36,7 @@ func spawn_bullet(origin: Vector2, direction: Vector2, damage: float, crit_stack
 	bullet.pierce = int(w.get("pierce", 0)) + int(round(float(player.mod_add("pierce"))))
 	bullet.effects = w.get("apply", [])
 	sfx.call("crit" if crit_stacks >= 2 else "shoot")
-	host.add_child(bullet)
+	fx.add_child(bullet)
 	bullet.body_entered.connect(_on_bullet_hit_body.bind(bullet))
 	bullet.area_entered.connect(_on_bullet_hit_area.bind(bullet))
 
@@ -145,8 +145,8 @@ func _boom(center: Vector2, r: float) -> void:
 	ring.default_color = Color(1.0, 0.55, 0.1, 0.9)
 	ring.position = center
 	ring.scale = Vector2(0.3, 0.3)
-	host.add_child(ring)
-	var tw := host.create_tween()
+	fx.add_child(ring)
+	var tw := fx.create_tween()
 	tw.set_parallel(true)
 	tw.tween_property(ring, "scale", Vector2.ONE, 0.28)
 	tw.tween_property(ring, "modulate:a", 0.0, 0.28)

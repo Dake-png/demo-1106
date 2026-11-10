@@ -91,8 +91,17 @@ const BOSS_DATA   := preload("res://scripts/boss_data.gd")
 const COMBAT      := preload("res://scripts/combat.gd")
 const SPAWNER     := preload("res://scripts/spawner.gd")
 const SAVE_SYSTEM := preload("res://scripts/save_system.gd")
+const GROUND      := preload("res://scripts/ground.gd")
 
 const WORLD_HALF := 800.0
+
+## 2.5D 三层结构开关：false 时 World/Fx 直接指向 self，等价于旧版单层结构（排障用）
+const USE_WORLD_LAYERS := true
+
+# 三层结构：Ground（地面，最底）/ World（实体，按脚点 Y 排序）/ Fx（子弹与特效，最上）
+var ground_layer: Node2D
+var world_layer: Node2D
+var fx_layer: Node2D
 
 
 func _ready() -> void:
@@ -104,10 +113,11 @@ func _ready() -> void:
 	EventBus.coin_picked.connect(_on_coin_picked)
 	EventBus.exp_orb_picked.connect(_on_exp_orb_picked)
 	EventBus.item_picked.connect(_on_item_picked)
+	_build_world_layers()
 	sfx_player = SFX_PLAYER.new()
 	add_child(sfx_player)
 	dmg_numbers = DAMAGE_NUMBERS.new()
-	add_child(dmg_numbers)
+	fx_layer.add_child(dmg_numbers)
 	_build_hud()
 	_build_inventory_ui()
 	_build_shop_btn()
@@ -128,14 +138,14 @@ func _ready() -> void:
 	# 生成 / 存档子系统
 	spawner = SPAWNER.new()
 	add_child(spawner)
-	spawner.setup(self, WORLD_HALF)
+	spawner.setup(world_layer, WORLD_HALF, fx_layer)
 	save_system = SAVE_SYSTEM.new()
 	add_child(save_system)
 
 	_spawn_player()
 	combat = COMBAT.new()
 	add_child(combat)
-	combat.setup(self, player, dmg_numbers, _play_sfx)
+	combat.setup(fx_layer, player, dmg_numbers, _play_sfx)
 
 	inventory_ui.set_player(player)
 	_build_weapon_ui()
@@ -156,6 +166,32 @@ func _ready() -> void:
 
 func _play_sfx(name: String) -> void:
 	sfx_player.play(name)
+
+
+# ========== 世界分层（2.5D 脚点 Y 排序） ==========
+
+## 建立 Ground / World / Fx 三层：地面最底、实体按脚点 Y 排序、子弹与特效最上
+func _build_world_layers() -> void:
+	if not USE_WORLD_LAYERS:
+		world_layer = self
+		fx_layer = self
+		return
+
+	ground_layer = GROUND.new()
+	ground_layer.name = "Ground"
+	ground_layer.z_index = -100
+	add_child(ground_layer)
+	ground_layer.setup(WORLD_HALF)
+
+	world_layer = Node2D.new()
+	world_layer.name = "World"
+	world_layer.y_sort_enabled = true
+	add_child(world_layer)
+
+	fx_layer = Node2D.new()
+	fx_layer.name = "Fx"
+	fx_layer.z_index = 100
+	add_child(fx_layer)
 
 
 # ========== 动态构建 UI ==========
@@ -612,16 +648,7 @@ func _make_rich_row(font_size: int, wrap := false) -> RichTextLabel:
 
 # ========== 地图 ==========
 
-func _draw() -> void:
-	var size := WORLD_HALF * 2.0
-	var tl := Vector2(-WORLD_HALF, -WORLD_HALF)
-	draw_rect(Rect2(tl, Vector2(size, size)), Color.WHITE)
-	draw_rect(Rect2(tl, Vector2(size, size)), Color.BLACK, false, 3.0)
-	var step := 100.0
-	for x in range(-int(WORLD_HALF), int(WORLD_HALF) + 1, int(step)):
-		draw_line(Vector2(x, -WORLD_HALF), Vector2(x, WORLD_HALF), Color(0.85, 0.85, 0.85), 1.0)
-	for y in range(-int(WORLD_HALF), int(WORLD_HALF) + 1, int(step)):
-		draw_line(Vector2(-WORLD_HALF, y), Vector2(WORLD_HALF, y), Color(0.85, 0.85, 0.85), 1.0)
+# 地面绘制已迁到 scripts/ground.gd（挂在 Ground 层）
 
 
 # ========== 生成 ==========
@@ -629,7 +656,7 @@ func _draw() -> void:
 func _spawn_player() -> void:
 	var p := PlayerScene.instantiate()
 	p.position = Vector2.ZERO
-	add_child(p)
+	world_layer.add_child(p)
 	p.health_changed.connect(_on_health_changed)
 	p.shield_changed.connect(_on_shield_changed)
 	p.bullet_spawned.connect(_on_bullet_spawned)

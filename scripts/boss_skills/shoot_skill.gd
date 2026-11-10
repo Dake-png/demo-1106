@@ -42,4 +42,6 @@ func _fire() -> void:
 		orb.position = boss.global_position + dir * (float(boss.radius) + 10.0)
 		orb.velocity = dir * float(cfg.get("orb_speed", 300.0))
 		orb.damage = int(cfg.get("damage", 18))
-		boss.get_parent().add_child(orb)
+		# 弹幕属于特效层：优先挂 Fx，未注入时退回 Boss 所在层（旧结构）
+		var orb_host: Node = boss.fx_host if boss.fx_host else boss.get_parent()
+		orb_host.add_child(orb)

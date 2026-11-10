@@ -12,13 +12,15 @@ const MAX_ENEMIES := 200   # 场上敌人上限
 const COIN_SPAWN_INTERVAL := 2.2
 const ENEMY_SPAWN_INTERVAL := 2.5
 
-var host: Node       # 主场景：生成物仍挂在它下面，保持渲染层级不变
+var host: Node       # 实体层（World）：敌人 / Boss / 掉落物按脚点 Y 排序
+var fx_host: Node    # 特效层（Fx）：Boss 弹幕等挂在实体之上
 var world_half := 800.0
 
 
-func setup(host_node: Node, world_half_value: float) -> void:
+func setup(host_node: Node, world_half_value: float, fx: Node = null) -> void:
 	host = host_node
 	world_half = world_half_value
+	fx_host = fx
 
 
 # 金币 / 敌人生成循环（create_timer 只触发一次，所以用 Timer 节点）
@@ -81,6 +83,7 @@ func pick_enemy_type() -> int:
 func spawn_boss(boss_id: String) -> Node:
 	var boss := BossScene.instantiate()
 	boss.configure(boss_id)
+	boss.fx_host = fx_host
 	boss.position = edge_spawn_pos()
 	host.add_child(boss)
 	return boss

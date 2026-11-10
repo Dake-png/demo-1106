@@ -1,0 +1,81 @@
+{
+  "meta": {
+    "title": "角色属性",
+    "type": "stats",
+    "version": "1.1",
+    "source": "scripts/player.gd"
+  },
+  "player": {
+    "name": "玩家",
+    "appearance": {
+      "body": "emoji 表情 🙂 待机 / 😡 攻击 / 🤬 暴击",
+      "death_emoji": "💀",
+      "death_pause_second": 1,
+      "draw_size": "32x32",
+      "aim_indicator": "鼠标方向黑色三角箭头"
+    },
+    "base_stats": {
+      "hp": 100,
+      "speed": 260,
+      "speed_unit": "像素/秒",
+      "attack_power": 25,
+      "fire_cooldown_second": 0.2,
+      "multishot": 1,
+      "bullet_speed": 650,
+      "base_crit_rate": 0.01,
+      "crit_rate_growth_per_level": 0.01,
+      "crit_damage_multiplier": 2,
+      "armor": 5
+    },
+    "shield_rule": {
+      "max": 50,
+      "regen_delay_second": 3,
+      "regen_rate_per_second": 10,
+      "initial_shield": 50
+    },
+    "dash": {
+      "speed": 700,
+      "duration_second": 0.18,
+      "cooldown_second": 0.8,
+      "invulnerable_during_dash": true
+    },
+    "damage_rule": {
+      "invulnerable_after_hit_second": 0.5,
+      "shield_absorbs_damage_first": true,
+      "death_rule": "生命值归零后重载当前场景"
+    },
+    "crit_rule": {
+      "crit_rate_formula": "暴击率 = 基础暴击率 × (1 + 卡片加成)",
+      "damage_formula": "伤害 = 攻击力 × 2^(暴击段数)",
+      "crit_stacks_rule": "每 100% 暴击率稳定 1 段，余数按概率再 +1 段",
+      "base_crit_no_upper_limit": true
+    },
+    "exp_level_rule": {
+      "start_level": 1,
+      "base_exp": 10,
+      "growth_multiplier": 1.35,
+      "exp_to_next_formula": "base_exp × growth_multiplier^(等级 - 1)",
+      "first_level_exp": 10,
+      "upgrade_pauses_game": true
+    },
+    "camera": {
+      "follow_smoothing": true,
+      "follow_speed": 9,
+      "zoom_min": 0.5,
+      "zoom_max": 2.5,
+      "zoom_step": 0.15,
+      "zoom_control": "鼠标滚轮上滚放大 / 下滚缩小"
+    },
+    "map_bound": {
+      "world_half_size": 800,
+      "clamp_padding": 16
+    },
+    "controls": {
+      "move": "WASD",
+      "aim": "鼠标",
+      "shoot": "鼠标左键",
+      "dash": "Space",
+      "zoom": "鼠标滚轮"
+    }
+  }
+}

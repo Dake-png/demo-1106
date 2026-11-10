@@ -1,16 +1,27 @@
 extends Area2D
 
-## 金币：旋转 + 碰到玩家即收集
+## 金币：旋转 + 碰到玩家即收集（收集事件走 EventBus）
 
-signal picked_up
+var _player: Node = null
 
 
 func _ready() -> void:
+	add_to_group("drop")
 	body_entered.connect(_on_body_entered)
 
 
-func _process(_delta: float) -> void:
-	rotate(_delta * 4.0)   # 旋转动画
+const MAGNET_SPEED := 620.0
+
+
+func _process(delta: float) -> void:
+	rotate(delta * 4.0)   # 旋转动画
+	if _player == null or not is_instance_valid(_player):
+		_player = get_tree().get_first_node_in_group("player")
+	var p = _player
+	if p and p.pickup_active():
+		var d: Vector2 = p.global_position - global_position
+		if d.length() < p.pickup_radius():
+			global_position += d.normalized() * MAGNET_SPEED * delta
 
 
 func _draw() -> void:
@@ -21,5 +32,5 @@ func _draw() -> void:
 
 func _on_body_entered(body: Node) -> void:
 	if body.is_in_group("player"):
-		picked_up.emit()
+		EventBus.coin_picked.emit()
 		queue_free()

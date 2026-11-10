@@ -17,6 +17,11 @@ export_presets.cfg
 # .editorconfig 通常保留
 # .gitattributes 通常保留
 
+# 临时文件与运行日志
+*.tmp
+_err*.txt
+*.log
+
 # 操作系统
 .DS_Store
 Thumbs.db
